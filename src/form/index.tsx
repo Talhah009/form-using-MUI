@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   FormControl,
@@ -34,10 +34,21 @@ const Form = () => {
   const [orderDate, setOrderDate] = useState(null);
   const [deliveryMinDate, setDeliveryMinDate] = useState(null);
 
-  const handleOrderDateChange = (date: any) => {
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("userData");
+    if (storedData) {
+      setUserData(JSON.parse(storedData));
+    }
+  }, []);
+
+  const handleOrderDate = (date: any) => {
     setOrderDate(date);
+  };
+  const handledeliveryDate = (date: any) => {
     setDeliveryMinDate(date);
   };
+
 
   const unique_id = uuid();
   const small_id = unique_id.slice(0, 8);
@@ -85,6 +96,19 @@ const Form = () => {
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
+    if (
+      !name ||
+      !size ||
+      !category ||
+      !price ||
+      !img ||
+      !orderDate ||
+      !deliveryMinDate
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
     const data = {
       id: small_id,
       name: name,
@@ -92,8 +116,7 @@ const Form = () => {
       category: category,
       price: price,
       image: img,
-      order: orderDate,
-      delivery:deliveryMinDate,
+      dates: { orderDate, deliveryMinDate },
     };
 
     const updatedData = [...userData, data];
@@ -212,14 +235,15 @@ const Form = () => {
               <DatePicker
                 label="Order Date"
                 value={orderDate}
-                onChange={handleOrderDateChange}
+                onChange={handleOrderDate}
                 sx={{
                   width: 200,
                 }}
               />
               <DatePicker
                 label="Delivery Date"
-                minDate={deliveryMinDate}
+                onChange={handledeliveryDate}
+                minDate={orderDate}
                 sx={{
                   width: 200,
                 }}
@@ -233,9 +257,12 @@ const Form = () => {
           </Button>
         </div>
       </div>
-      <div>{/* <DataTable data={userData} /> */}</div>
+      <div>
+        <DataTable />
+        </div>
     </div>
   );
 };
 
 export default Form;
+

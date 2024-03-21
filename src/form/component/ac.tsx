@@ -6,19 +6,13 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import moment from "moment";
 import { useState } from "react";
 import { Box, Fade, Modal, Typography } from "@mui/material";
 
 const userDataString = localStorage.getItem("userData");
 const userData = userDataString ? JSON.parse(userDataString) : [];
 
-interface UserData {
-  id: any;
 
-  dates: any;
-  description: string;
-}
 
 const style = {
   position: "absolute" as "absolute",
@@ -31,40 +25,24 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
-interface User {
-  dates: {
-    orderDate: string;
-    deliveryMinDate: string;
-  };
-}
+
 export default function DataTable() {
-  const [selectedUser, setSelectedUser] = useState<User | any>(null);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  const [dateRange, setDateRange] = useState<string[]>([]);
 
   const handleRowClick = (user: any) => {
     setSelectedUser(user);
     setOpenModal(true);
-    setDateRange(loopDate(user.dates.orderDate, user.dates.deliveryMinDate));
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
-    setDateRange([]);
   };
 
-  const loopDate = (startDate: string, endDate: string) => {
-    const datesArray = [];
-    let currentDate = moment(startDate);
-    const end = moment(endDate);
+  if (!userData || userData.length === 0) {
+    return <></>;
+  }
 
-    while (currentDate.isSameOrBefore(end)) {
-      datesArray.push(currentDate.format("DD/MM/YYYY"));
-      currentDate.add(1, "days");
-    }
-
-    return datesArray;
-  };
   return (
     <>
       <TableContainer component={Paper}>
@@ -95,10 +73,11 @@ export default function DataTable() {
                 <TableCell align="center">{user.category}</TableCell>
                 <TableCell align="center">{user.price}</TableCell>
                 <TableCell align="center" onClick={() => handleRowClick(user)}>
-                  {moment(user.dates.orderDate).format("DD/MM/YYYY")} /{" "}
-                  {moment(user.dates.deliveryMinDate).format("DD/MM/YYYY")}
+                  {new Date(user.dates.orderDate).toLocaleDateString("en-GB")} |{" "}
+                  {new Date(user.dates.deliveryMinDate).toLocaleDateString(
+                    "en-GB"
+                  )}
                 </TableCell>
-
                 <TableCell align="center">
                   <div className="timg">
                     <img
@@ -128,9 +107,8 @@ export default function DataTable() {
                 Dates
               </Typography>
               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                {dateRange.map((date) => (
-                  <div key={date}>{date}</div>
-                ))}
+                {/* Name: {selectedUser.name}
+                Order Date: {selectedUser.dates.orderDate} */}
               </Typography>
             </>
           )}
